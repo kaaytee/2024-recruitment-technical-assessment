@@ -73,13 +73,13 @@ def largestFileSize(files: list[File]) -> int:
         # add all children
         for file_id in parents[file.id]:
             curr_sum += id_to_size[file_id] 
+            #if child has children
+            if file_id in parents:
+                for f_id in parents[file_id]:
+                    curr_sum += id_to_size[f_id]
+                
 
         # if child has children
-        for child in parents[file.id]:
-            if child in parents:
-                for file_id in parents[child]:
-                    
-                    curr_sum += id_to_size[file_id]
         
         max_file = max(curr_sum, max_file)
     return max_file
@@ -117,3 +117,6 @@ if __name__ == '__main__':
     ]
 
     assert largestFileSize(testFiles) == 20992
+    
+    
+    
