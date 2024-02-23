@@ -42,7 +42,6 @@ def kLargestCategories(files: list[File], k: int) -> list[str]:
     
     k_list = [heapq.heappop(pq) for i in range(len(pq))]
     k_list = k_list[::-1]
-    print(k_list)
 
     return sorted([name for _, name in k_list]) if len(k_list) < k else sorted([name for _, name in k_list[:k]])
 
@@ -51,7 +50,39 @@ def kLargestCategories(files: list[File], k: int) -> list[str]:
 Task 3
 """
 def largestFileSize(files: list[File]) -> int:
-    return 0
+    #if no files exist then there is no large file
+    if len(files) == 0:
+        return 0
+
+    parents = {}
+    id_to_size = {}
+    for file in files:
+        if file.parent not in parents:
+            parents[file.parent] = [file.id]
+        else:
+            parents[file.parent].append(file.id)
+        id_to_size[file.id] = file.size    
+
+    max_file = 0
+    for file in files:
+        curr_sum = file.size
+        # if no children
+        if file.id not in parents:
+            max_file = max(curr_sum, max_file)
+            continue
+        # add all children
+        for file_id in parents[file.id]:
+            curr_sum += id_to_size[file_id] 
+
+        # if child has children
+        for child in parents[file.id]:
+            if child in parents:
+                for file_id in parents[child]:
+                    
+                    curr_sum += id_to_size[file_id]
+        
+        max_file = max(curr_sum, max_file)
+    return max_file
 
 
 if __name__ == '__main__':
@@ -81,7 +112,6 @@ if __name__ == '__main__':
         "Spreadsheet2.xlsx",
         "Video.mp4"
     ]
-    print(kLargestCategories(testFiles, 3))
     assert kLargestCategories(testFiles, 3) == [
         "Documents", "Folder", "Media"
     ]
