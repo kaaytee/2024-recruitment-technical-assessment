@@ -1,4 +1,6 @@
+from __future__ import annotations
 from dataclasses import dataclass
+import heapq
 
 @dataclass
 class File:
@@ -13,14 +15,36 @@ class File:
 Task 1
 """
 def leafFiles(files: list[File]) -> list[str]:
-    return []
+    # if you are a parent you have children
+    parents_id = set()
+    for file in files:
+        parents_id.add(file.parent)
+    
+    return [f.name for f in files if f.id not in parents_id]
 
 
 """
 Task 2
 """
 def kLargestCategories(files: list[File], k: int) -> list[str]:
-    return []
+
+    hmap = {}
+    for file in files:
+        for category in file.categories:
+            if category not in hmap:
+                hmap[category] = 1
+            else:
+                hmap[category] += 1
+    pq = []
+    
+    for h in hmap:
+        heapq.heappush(pq, (hmap[h], h))
+    
+    k_list = [heapq.heappop(pq) for i in range(len(pq))]
+    k_list = k_list[::-1]
+    print(k_list)
+
+    return sorted([name for _, name in k_list]) if len(k_list) < k else sorted([name for _, name in k_list[:k]])
 
 
 """
@@ -57,7 +81,7 @@ if __name__ == '__main__':
         "Spreadsheet2.xlsx",
         "Video.mp4"
     ]
-
+    print(kLargestCategories(testFiles, 3))
     assert kLargestCategories(testFiles, 3) == [
         "Documents", "Folder", "Media"
     ]
