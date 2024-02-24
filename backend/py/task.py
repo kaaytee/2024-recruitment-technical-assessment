@@ -54,6 +54,7 @@ def largestFileSize(files: list[File]) -> int:
     if len(files) == 0:
         return 0
 
+    # find all parents and corresponding children
     parents = {}
     id_to_size = {}
     for file in files:
@@ -63,6 +64,15 @@ def largestFileSize(files: list[File]) -> int:
             parents[file.parent].append(file.id)
         id_to_size[file.id] = file.size    
 
+    # calculate sums of parents first to avoid recalculation later on
+    parents_sum = {}
+    for p in parents:
+        curr = 0
+        for c in parents[p]:
+            curr += id_to_size[c]
+        parents_sum[p] = curr
+
+    # now find the largest file size
     max_file = 0
     for file in files:
         curr_sum = file.size
@@ -71,15 +81,11 @@ def largestFileSize(files: list[File]) -> int:
             max_file = max(curr_sum, max_file)
             continue
         # add all children
+        curr_sum += parents_sum[file.id]
+        #if child has children
         for file_id in parents[file.id]:
-            curr_sum += id_to_size[file_id] 
-            #if child has children
             if file_id in parents:
-                for f_id in parents[file_id]:
-                    curr_sum += id_to_size[f_id]
-                
-
-        # if child has children
+                curr_sum += parents_sum[file_id]
         
         max_file = max(curr_sum, max_file)
     return max_file
